@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 export default function Home() {
   const [data, setData] = useState<any>(null)
@@ -26,58 +27,63 @@ export default function Home() {
   }
 
   return (
-    <main style={{ padding: '32px 16px', maxWidth: 1000, margin: '0 auto' }}>
-      <h1 style={{ background: 'linear-gradient(90deg,#3b82f6,#8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-        XMC Dashboard
-      </h1>
-      <p style={{ color: '#8b9bb4', marginBottom: 24 }}>Room: default</p>
+    <main style={{ padding: '40px 20px', maxWidth: 1100, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
+        <div>
+          <h1 style={{ fontSize: 40, fontWeight: 600, letterSpacing: '-0.02em' }}>XMC</h1>
+          <p style={{ color: 'var(--muted)', marginTop: 4 }}>Trading performance</p>
+        </div>
+        <Link href="/connect" className="btn">Connect Account</Link>
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 40 }}>
         {[
           ['Total Trades', s.total || 0],
-          ['Net P&L', fmt(s.net), s.net >= 0 ? '#22c55e' : '#ef4444'],
+          ['Net P&L', fmt(s.net), s.net >= 0 ? 'var(--green)' : 'var(--red)'],
           ['Win Rate', ((s.winrate || 0) * 100).toFixed(1) + '%'],
-          ['Wins', s.wins || 0, '#22c55e'],
-          ['Losses', s.losses || 0, '#ef4444'],
+          ['Wins', s.wins || 0, 'var(--green)'],
+          ['Losses', s.losses || 0, 'var(--red)'],
           ['Profit Factor', fmt(s.pf)],
           ['Avg Hold', dur(s.avg_hold)],
-          ['Avg Win', fmt(s.avg_win), '#22c55e'],
-          ['Avg Loss', fmt(s.avg_loss), '#ef4444'],
+          ['Avg Win', fmt(s.avg_win), 'var(--green)'],
+          ['Avg Loss', fmt(s.avg_loss), 'var(--red)'],
         ].map(([label, value, color]) => (
-          <div key={label} style={{ background: '#1a2332', padding: 16, borderRadius: 12, textAlign: 'center' }}>
-            <div style={{ fontSize: 12, color: '#8b9bb4', textTransform: 'uppercase' }}>{label}</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: color || '#e8eef4', marginTop: 4 }}>{value}</div>
+          <div key={String(label)} className="glass stat">
+            <div className="label">{label}</div>
+            <div className="value" style={{ color: color || 'var(--text)' }}>{value}</div>
           </div>
         ))}
       </div>
 
-      <h2 style={{ marginBottom: 12 }}>Leaderboard</h2>
-      <table style={{ width: '100%', background: '#1a2332', borderRadius: 12, borderCollapse: 'collapse' }}>
-        <thead>
-          <tr style={{ color: '#8b9bb4' }}>
-            <th style={{ padding: 12, textAlign: 'left' }}>Rank</th>
-            <th style={{ padding: 12, textAlign: 'left' }}>Trader</th>
-            <th style={{ padding: 12, textAlign: 'left' }}>Net P&L</th>
-            <th style={{ padding: 12, textAlign: 'left' }}>Trades</th>
-            <th style={{ padding: 12, textAlign: 'left' }}>Win Rate</th>
-            <th style={{ padding: 12, textAlign: 'left' }}>Avg Hold</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lb.length === 0 ? (
-            <tr><td colSpan={6} style={{ padding: 20, textAlign: 'center', color: '#8b9bb4' }}>No trades yet. Attach the EA and close a trade.</td></tr>
-          ) : lb.map((r: any, i: number) => (
-            <tr key={r.trader} style={{ borderTop: '1px solid #2d3a4f' }}>
-              <td style={{ padding: 12 }}>{i + 1}</td>
-              <td style={{ padding: 12 }}>{r.trader}</td>
-              <td style={{ padding: 12, color: r.net >= 0 ? '#22c55e' : '#ef4444' }}>{fmt(r.net)}</td>
-              <td style={{ padding: 12 }}>{r.trades}</td>
-              <td style={{ padding: 12 }}>{(r.winrate * 100).toFixed(1)}%</td>
-              <td style={{ padding: 12 }}>{dur(r.avg_hold)}</td>
+      <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 16 }}>Leaderboard</h2>
+      <div className="glass" style={{ overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ color: 'var(--muted)' }}>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Rank</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Trader</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Net P&L</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Trades</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Win Rate</th>
+              <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Avg Hold</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {lb.length === 0 ? (
+              <tr><td colSpan={6} style={{ padding: 40, textAlign: 'center', color: 'var(--muted)' }}>No trades yet. Connect your account.</td></tr>
+            ) : lb.map((r: any, i: number) => (
+              <tr key={r.trader} style={{ borderTop: '1px solid var(--glass-border)' }}>
+                <td style={{ padding: '16px 20px' }}>{i + 1}</td>
+                <td style={{ padding: '16px 20px' }}>{r.trader}</td>
+                <td style={{ padding: '16px 20px', color: r.net >= 0 ? 'var(--green)' : 'var(--red)' }}>{fmt(r.net)}</td>
+                <td style={{ padding: '16px 20px' }}>{r.trades}</td>
+                <td style={{ padding: '16px 20px' }}>{(r.winrate * 100).toFixed(1)}%</td>
+                <td style={{ padding: '16px 20px' }}>{dur(r.avg_hold)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </main>
   )
 }
