@@ -1,11 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Rooms() {
   const [code, setCode] = useState('')
-  const [joined, setJoined] = useState<string | null>(null)
+  const [room, setRoom] = useState('default')
+  const [traders, setTraders] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch(`/api/stats?room=${room}`)
+      .then(r => r.json())
+      .then(d => setTraders(d.leaderboard || []))
+  }, [room])
+
+  const fmt = (n: number) => (n || 0).toFixed(2)
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
@@ -20,31 +29,48 @@ export default function Rooms() {
       </aside>
 
       <main style={{ flex: 1, padding: '40px 48px' }}>
-        <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 8 }}>Rooms</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: 40 }}>Create or join a private room to compete with other traders.</p>
+        <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 4 }}>Rooms</h1>
+        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Traders and ranks inside a private room</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, maxWidth: 800 }}>
-          <div className="glass" style={{ padding: 32 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>Create Room</h2>
-            <p style={{ color: 'var(--muted)', marginBottom: 24, fontSize: 15 }}>Share the code with traders you want to compete against.</p>
-            <button className="btn" onClick={() => setJoined('XMC-' + Math.random().toString(36).slice(2, 8).toUpperCase())}>
-              Generate Room Code
-            </button>
-            {joined && <p style={{ marginTop: 20, fontSize: 18, fontWeight: 600 }}>{joined}</p>}
-          </div>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 32, maxWidth: 480 }}>
+          <input
+            placeholder="Room code"
+            value={code}
+            onChange={e => setCode(e.target.value)}
+          />
+          <button className="btn" onClick={() => code && setRoom(code)}>
+            View Room
+          </button>
+        </div>
 
-          <div className="glass" style={{ padding: 32 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16 }}>Join Room</h2>
-            <input
-              placeholder="Enter room code"
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              style={{ marginBottom: 16 }}
-            />
-            <button className="btn" onClick={() => code && setJoined(code)}>
-              Join
-            </button>
+        <div className="glass" style={{ overflow: 'hidden' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--glass-border)', fontWeight: 600 }}>
+            Room: {room}
           </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ color: 'var(--muted)' }}>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 500 }}>Rank</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 500 }}>Trader</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 500 }}>Net P&L</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 500 }}>Trades</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 500 }}>Win Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {traders.length === 0 ? (
+                <tr><td colSpan={5} style={{ padding: 40, textAlign: 'center', color: 'var(--muted)' }}>No traders in this room yet.</td></tr>
+              ) : traders.map((r, i) => (
+                <tr key={r.trader} style={{ borderTop: '1px solid var(--glass-border)' }}>
+                  <td style={{ padding: '18px 24px', fontWeight: 600 }}>{i + 1}</td>
+                  <td style={{ padding: '18px 24px' }}>{r.trader}</td>
+                  <td style={{ padding: '18px 24px', color: r.net >= 0 ? 'var(--green)' : 'var(--red)', fontWeight: 600 }}>{fmt(r.net)}</td>
+                  <td style={{ padding: '18px 24px' }}>{r.trades}</td>
+                  <td style={{ padding: '18px 24px' }}>{(r.winrate * 100).toFixed(1)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>
