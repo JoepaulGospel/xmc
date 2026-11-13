@@ -21,15 +21,14 @@ export default function Dashboard() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
-      {/* Sidebar */}
       <aside style={{ width: 240, background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', padding: '28px 16px', display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontSize: 22, fontWeight: 600, padding: '0 12px 32px' }}>XMC</div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Link href="/dashboard" style={navActive}>Dashboard</Link>
+          <Link href="/rooms" style={navItem}>Rooms</Link>
+          <Link href="/leaderboard" style={navItem}>Leaderboard</Link>
           <Link href="/connect" style={navItem}>Connect Account</Link>
-          <Link href="#" style={navItem}>Rooms</Link>
-          <Link href="#" style={navItem}>Leaderboard</Link>
         </nav>
 
         <div style={{ marginTop: 'auto', padding: '0 12px' }}>
@@ -37,7 +36,6 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Main */}
       <main style={{ flex: 1, padding: '32px 40px' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
           <div>
@@ -47,7 +45,6 @@ export default function Dashboard() {
           <Link href="/connect" className="btn">Connect Account</Link>
         </header>
 
-        {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           <StatCard label="Net P&L" value={fmt(s.net)} positive={s.net >= 0} />
           <StatCard label="Win Rate" value={((s.winrate || 0) * 100).toFixed(1) + '%'} />
@@ -55,7 +52,6 @@ export default function Dashboard() {
           <StatCard label="Profit Factor" value={fmt(s.pf)} />
         </div>
 
-        {/* Growth + details */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
           <div className="glass" style={{ padding: 28, minHeight: 320 }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>Equity Curve</h2>
