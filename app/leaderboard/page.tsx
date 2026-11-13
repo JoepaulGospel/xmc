@@ -7,7 +7,8 @@ export default function Leaderboard() {
   const [data, setData] = useState<any[]>([])
 
   useEffect(() => {
-    fetch('/api/stats?room=default')
+    // Overall ranking across all rooms
+    fetch('/api/stats?room=all')
       .then(r => r.json())
       .then(d => setData(d.leaderboard || []))
   }, [])
@@ -27,8 +28,8 @@ export default function Leaderboard() {
       </aside>
 
       <main style={{ flex: 1, padding: '40px 48px' }}>
-        <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 8 }}>Leaderboard</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Room: default</p>
+        <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 4 }}>Leaderboard</h1>
+        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Overall ranking of all traders on XMC</p>
 
         <div className="glass" style={{ overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -43,7 +44,7 @@ export default function Leaderboard() {
             </thead>
             <tbody>
               {data.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>No traders yet in this room.</td></tr>
+                <tr><td colSpan={5} style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>No traders yet.</td></tr>
               ) : data.map((r, i) => (
                 <tr key={r.trader} style={{ borderTop: '1px solid var(--glass-border)' }}>
                   <td style={{ padding: '18px 24px', fontWeight: 600 }}>{i + 1}</td>
