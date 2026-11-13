@@ -2,15 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Signup() {
+  const router = useRouter()
   const [form, setForm] = useState({ email: '', password: '' })
   const [status, setStatus] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Account created (demo). You can now connect your trading account.')
+    setStatus('Account created. Redirecting to login...')
     // TODO: real auth with Supabase
+    setTimeout(() => router.push('/login'), 800)
   }
 
   return (
