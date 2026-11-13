@@ -9,12 +9,19 @@ export default function Rooms() {
   const [traders, setTraders] = useState<any[]>([])
   const [created, setCreated] = useState('')
   const [status, setStatus] = useState('')
+  const [copied, setCopied] = useState('')
 
   useEffect(() => {
     fetch(`/api/stats?room=${room}`)
       .then(r => r.json())
       .then(d => setTraders(d.leaderboard || []))
   }, [room])
+
+  const copy = (text: string) => {
+    navigator.clipboard.writeText(text)
+    setCopied(text)
+    setTimeout(() => setCopied(''), 1500)
+  }
 
   const createRoom = async () => {
     setStatus('Creating...')
@@ -53,8 +60,8 @@ export default function Rooms() {
   const fmt = (n: number) => (n || 0).toFixed(2)
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
-      <aside style={{ width: 240, background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', padding: '28px 16px' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      <aside className="sidebar">
         <Link href="/dashboard" style={{ fontSize: 22, fontWeight: 600, textDecoration: 'none', color: 'var(--text)' }}>XMC</Link>
         <nav style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Link href="/dashboard" style={nav}>Dashboard</Link>
@@ -64,15 +71,22 @@ export default function Rooms() {
         </nav>
       </aside>
 
-      <main style={{ flex: 1, padding: '40px 48px' }}>
+      <main className="main-content" style={{ flex: 1, padding: '40px 48px' }}>
         <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 4 }}>Rooms</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Create a room or join with a code. See ranks of traders inside.</p>
+        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Create a room or join with a code.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 720, marginBottom: 40 }}>
+        <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 720, marginBottom: 40 }}>
           <div className="glass" style={{ padding: 28 }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Create Room</h2>
             <button className="btn" onClick={createRoom}>Generate Code</button>
-            {created && <p style={{ marginTop: 16, fontSize: 20, fontWeight: 600 }}>{created}</p>}
+            {created && (
+              <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 20, fontWeight: 600 }}>{created}</span>
+                <button className="btn btn-secondary" style={{ padding: '8px 16px', fontSize: 14 }} onClick={() => copy(created)}>
+                  {copied === created ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="glass" style={{ padding: 28 }}>
@@ -83,7 +97,14 @@ export default function Rooms() {
               onChange={e => setCode(e.target.value)}
               style={{ marginBottom: 12 }}
             />
-            <button className="btn" onClick={joinRoom}>Join</button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn" onClick={joinRoom}>Join</button>
+              {code && (
+                <button className="btn btn-secondary" style={{ padding: '8px 16px' }} onClick={() => copy(code)}>
+                  {copied === code ? 'Copied' : 'Copy'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -124,4 +145,4 @@ export default function Rooms() {
 }
 
 const nav: React.CSSProperties = { padding: '12px 16px', borderRadius: 10, color: 'var(--muted)', textDecoration: 'none', fontSize: 15 }
-const navActive: React.CSSProperties = { ...nav, background: 'rgba(255,255,255,0.08)', color: 'var(--text)' }
+const navActive: React.CSSProperties = { ...nav, background: 'rgba(128,128,128,0.12)', color: 'var(--text)' }
