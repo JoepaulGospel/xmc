@@ -1,3 +1,5 @@
+import './globals.css'
+
 export default function RootLayout({
   children,
 }: {
@@ -5,9 +7,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'system-ui, sans-serif', background: '#0f1419', color: '#e8eef4' }}>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
