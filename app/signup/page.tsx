@@ -3,17 +3,32 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase-client'
 
 export default function Signup() {
   const router = useRouter()
   const [form, setForm] = useState({ email: '', password: '' })
   const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Account created. Redirecting to login...')
-    // TODO: real auth with Supabase
-    setTimeout(() => router.push('/login'), 800)
+    setLoading(true)
+    setStatus('')
+
+    const { error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+    })
+
+    if (error) {
+      setStatus(error.message)
+      setLoading(false)
+      return
+    }
+
+    setStatus('Account created. Check your email to confirm, then log in.')
+    setTimeout(() => router.push('/login'), 2000)
   }
 
   return (
@@ -25,11 +40,13 @@ export default function Signup() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <input type="email" placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
-          <input type="password" placeholder="Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
-          <button className="btn" type="submit" style={{ marginTop: 8 }}>Sign up</button>
+          <input type="password" placeholder="Password (min 6 characters)" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required minLength={6} />
+          <button className="btn" type="submit" disabled={loading} style={{ marginTop: 8 }}>
+            {loading ? 'Creating...' : 'Sign up'}
+          </button>
         </form>
 
-        {status && <p style={{ marginTop: 16, color: 'var(--green)', textAlign: 'center' }}>{status}</p>}
+        {status && <p style={{ marginTop: 16, color: status.includes('created') ? 'var(--green)' : 'var(--red)', textAlign: 'center', fontSize: 14 }}>{status}</p>}
 
         <p style={{ marginTop: 24, textAlign: 'center', fontSize: 14 }}>
           Already have an account? <Link href="/login" style={{ color: 'var(--accent)' }}>Log in</Link>
