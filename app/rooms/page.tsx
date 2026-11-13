@@ -7,12 +7,48 @@ export default function Rooms() {
   const [code, setCode] = useState('')
   const [room, setRoom] = useState('default')
   const [traders, setTraders] = useState<any[]>([])
+  const [created, setCreated] = useState('')
+  const [status, setStatus] = useState('')
 
   useEffect(() => {
     fetch(`/api/stats?room=${room}`)
       .then(r => r.json())
       .then(d => setTraders(d.leaderboard || []))
   }, [room])
+
+  const createRoom = async () => {
+    setStatus('Creating...')
+    const res = await fetch('/api/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create', trader: 'You' })
+    })
+    const data = await res.json()
+    if (data.code) {
+      setCreated(data.code)
+      setRoom(data.code)
+      setStatus('')
+    } else {
+      setStatus(data.error || 'Failed')
+    }
+  }
+
+  const joinRoom = async () => {
+    if (!code) return
+    setStatus('Joining...')
+    const res = await fetch('/api/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'join', code, trader: 'You' })
+    })
+    const data = await res.json()
+    if (data.status === 'joined') {
+      setRoom(code)
+      setStatus('Joined')
+    } else {
+      setStatus(data.error || 'Failed')
+    }
+  }
 
   const fmt = (n: number) => (n || 0).toFixed(2)
 
@@ -30,18 +66,28 @@ export default function Rooms() {
 
       <main style={{ flex: 1, padding: '40px 48px' }}>
         <h1 style={{ fontSize: 32, fontWeight: 600, marginBottom: 4 }}>Rooms</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Traders and ranks inside a private room</p>
+        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Create a room or join with a code. See ranks of traders inside.</p>
 
-        <div style={{ display: 'flex', gap: 12, marginBottom: 32, maxWidth: 480 }}>
-          <input
-            placeholder="Room code"
-            value={code}
-            onChange={e => setCode(e.target.value)}
-          />
-          <button className="btn" onClick={() => code && setRoom(code)}>
-            View Room
-          </button>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 720, marginBottom: 40 }}>
+          <div className="glass" style={{ padding: 28 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Create Room</h2>
+            <button className="btn" onClick={createRoom}>Generate Code</button>
+            {created && <p style={{ marginTop: 16, fontSize: 20, fontWeight: 600 }}>{created}</p>}
+          </div>
+
+          <div className="glass" style={{ padding: 28 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>Enter Code</h2>
+            <input
+              placeholder="Room code"
+              value={code}
+              onChange={e => setCode(e.target.value)}
+              style={{ marginBottom: 12 }}
+            />
+            <button className="btn" onClick={joinRoom}>Join</button>
+          </div>
         </div>
+
+        {status && <p style={{ marginBottom: 20, color: 'var(--muted)' }}>{status}</p>}
 
         <div className="glass" style={{ overflow: 'hidden' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--glass-border)', fontWeight: 600 }}>
