@@ -17,24 +17,30 @@ export default function ConnectPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div className="glass" style={{ width: '100%', maxWidth: 420, padding: 40 }}>
         <Link href="/dashboard" style={{ color: 'var(--muted)', fontSize: 14, textDecoration: 'none' }}>← Dashboard</Link>
-        <h1 style={{ fontSize: 32, fontWeight: 600, margin: '16px 0 8px' }}>Connect Account</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Use your MT5 / Exness read-only login</p>
+        <h1 style={{ fontSize: 32, fontWeight: 600, margin: '16px 0 8px' }}>Connect Trading Account</h1>
+        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>Enter your MT5 / Exness account details</p>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <input
+            name="mt5-login"
+            autoComplete="off"
             placeholder="Account number"
             value={form.login}
             onChange={e => setForm({ ...form, login: e.target.value })}
             required
           />
           <input
+            name="mt5-password"
             type="password"
+            autoComplete="new-password"
             placeholder="Read-only password"
             value={form.password}
             onChange={e => setForm({ ...form, password: e.target.value })}
             required
           />
           <input
+            name="mt5-server"
+            autoComplete="off"
             placeholder="Server (e.g. Exness-MT5Real8)"
             value={form.server}
             onChange={e => setForm({ ...form, server: e.target.value })}
@@ -48,7 +54,7 @@ export default function ConnectPage() {
         {status && <p style={{ marginTop: 20, textAlign: 'center', color: 'var(--muted)' }}>{status}</p>}
 
         <p style={{ marginTop: 32, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
-          Your password is used only to connect via MetaApi and is never stored in plain text.
+          This is your broker login, not your XMC account.
         </p>
       </div>
     </div>
