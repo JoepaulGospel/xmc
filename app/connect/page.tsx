@@ -9,8 +9,25 @@ export default function ConnectPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Connecting...')
-    setTimeout(() => setStatus('Account connected (demo)'), 1500)
+    setStatus('Connecting to broker...')
+
+    try {
+      const res = await fetch('/api/connect-mt5', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      const data = await res.json()
+
+      if (data.accountId) {
+        setStatus('Connected successfully')
+        // TODO: save accountId + apiKey to user's profile in Supabase
+      } else {
+        setStatus(data.error || 'Connection failed')
+      }
+    } catch {
+      setStatus('Network error')
+    }
   }
 
   return (
@@ -51,7 +68,7 @@ export default function ConnectPage() {
           </button>
         </form>
 
-        {status && <p style={{ marginTop: 20, textAlign: 'center', color: 'var(--muted)' }}>{status}</p>}
+        {status && <p style={{ marginTop: 20, textAlign: 'center', color: status.includes('success') ? 'var(--green)' : 'var(--muted)' }}>{status}</p>}
 
         <p style={{ marginTop: 32, fontSize: 13, color: 'var(--muted)', textAlign: 'center' }}>
           This is your broker login, not your XMC account.
