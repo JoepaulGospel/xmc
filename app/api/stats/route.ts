@@ -4,11 +4,12 @@ import { supabase } from '@/lib/supabase'
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const room = searchParams.get('room') || 'default'
+  const isGlobal = room === 'all'
 
-  const { data: trades, error } = await supabase
-    .from('trades')
-    .select('*')
-    .eq('room', room)
+  let query = supabase.from('trades').select('*')
+  if (!isGlobal) query = query.eq('room', room)
+
+  const { data: trades, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!trades || trades.length === 0) {
