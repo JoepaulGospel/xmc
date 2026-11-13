@@ -5,6 +5,14 @@ import Link from 'next/link'
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [theme, setTheme] = useState('dark')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme') || 'dark'
+    setTheme(saved)
+    document.documentElement.setAttribute('data-theme', saved)
+  }, [])
 
   useEffect(() => {
     const load = async () => {
@@ -16,46 +24,63 @@ export default function Dashboard() {
     return () => clearInterval(i)
   }, [])
 
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    document.documentElement.setAttribute('data-theme', next)
+  }
+
   const s = data?.summary || {}
   const fmt = (n: number) => (n || 0).toFixed(2)
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#000' }}>
-      <aside style={{ width: 240, background: '#0a0a0a', borderRight: '1px solid rgba(255,255,255,0.08)', padding: '28px 16px', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div style={{ fontSize: 22, fontWeight: 600, padding: '0 12px 32px' }}>XMC</div>
-
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <Link href="/dashboard" style={navActive}>Dashboard</Link>
-          <Link href="/rooms" style={navItem}>Rooms</Link>
-          <Link href="/leaderboard" style={navItem}>Leaderboard</Link>
-          <Link href="/connect" style={navItem}>Connect Account</Link>
+          <Link href="/dashboard" style={navActive} onClick={() => setSidebarOpen(false)}>Dashboard</Link>
+          <Link href="/rooms" style={navItem} onClick={() => setSidebarOpen(false)}>Rooms</Link>
+          <Link href="/leaderboard" style={navItem} onClick={() => setSidebarOpen(false)}>Leaderboard</Link>
+          <Link href="/connect" style={navItem} onClick={() => setSidebarOpen(false)}>Connect Account</Link>
         </nav>
-
         <div style={{ marginTop: 'auto', padding: '0 12px' }}>
           <Link href="/" style={{ color: 'var(--muted)', fontSize: 14, textDecoration: 'none' }}>Log out</Link>
         </div>
       </aside>
 
-      <main style={{ flex: 1, padding: '32px 40px' }}>
+      {sidebarOpen && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 99 }} />
+      )}
+
+      <main className="main-content" style={{ flex: 1, padding: '32px 40px' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
-          <div>
-            <h1 style={{ fontSize: 28, fontWeight: 600 }}>Welcome back</h1>
-            <p style={{ color: 'var(--muted)', marginTop: 4 }}>Your trading performance</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 600 }}>Welcome back</h1>
+              <p style={{ color: 'var(--muted)', marginTop: 4 }}>Your trading performance</p>
+            </div>
           </div>
-          <Link href="/connect" className="btn">Connect Account</Link>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <button className="btn btn-secondary" onClick={toggleTheme} style={{ padding: '8px 16px' }}>
+              {theme === 'dark' ? '☀' : '☾'}
+            </button>
+            <Link href="/connect" className="btn">Connect</Link>
+          </div>
         </header>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
+        <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 40 }}>
           <StatCard label="Net P&L" value={fmt(s.net)} positive={s.net >= 0} />
           <StatCard label="Win Rate" value={((s.winrate || 0) * 100).toFixed(1) + '%'} />
           <StatCard label="Total Trades" value={s.total || 0} />
           <StatCard label="Profit Factor" value={fmt(s.pf)} />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
-          <div className="glass" style={{ padding: 28, minHeight: 320 }}>
+        <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+          <div className="glass" style={{ padding: 28, minHeight: 280 }}>
             <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>Equity Curve</h2>
-            <div style={{ height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
+            <div style={{ height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)' }}>
               Chart will appear after trades are connected
             </div>
           </div>
@@ -86,7 +111,7 @@ const navItem: React.CSSProperties = {
 
 const navActive: React.CSSProperties = {
   ...navItem,
-  background: 'rgba(255,255,255,0.08)',
+  background: 'rgba(128,128,128,0.12)',
   color: 'var(--text)',
 }
 
